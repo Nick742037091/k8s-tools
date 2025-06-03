@@ -134,8 +134,9 @@ function HomePage() {
 
             <Form.Item label="注意">
               <div className="leading-[32px]">
+                <div>1. 需要连接公司生产VPN</div>
                 <div>
-                  1. 需要从k8s站点登录后提取token
+                  2. 需要从k8s站点登录后提取token
                   <span
                     className="font-bold text-blue-500 cursor-pointer ml-[10px]"
                     onClick={openImageModal}
@@ -144,7 +145,7 @@ function HomePage() {
                   </span>
                 </div>
                 <div>
-                  2. 当前配置在
+                  3. 当前配置在
                   <span className="text-blue-500 font-bold"> 月亮小屋 </span>
                   k8s站点的
                   <span className="text-blue-500 font-bold"> mh-web </span>
