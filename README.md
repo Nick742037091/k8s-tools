@@ -15,9 +15,7 @@
 开发调试:
 
 1. 在 vscode 中输入快捷键 F5
-2. [插件入口](https://www.nick-h.cn/k8s-tools/quick-start.html#%E6%8F%92%E4%BB%B6%E5%85%A5%E5%8F%A3)
-3. 执行命令后会启动 react-devtools 应用，打开插件后会自动连接上
-   ![alt text](/imgs/devtool.png)
+2. 在 打开的项目中启用插件
 
 ## 生产构建
 
