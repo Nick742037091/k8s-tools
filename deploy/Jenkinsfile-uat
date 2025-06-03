@@ -1,0 +1,100 @@
+def get_cicd_sequence() {
+    return "uat-" + env.BRANCH_NAME.replace("/","_") + "-" + env.BUILD_NUMBER + "_" + System.currentTimeMillis()
+}
+
+pipeline {
+  agent {
+    kubernetes {
+      // 继承KubeSphere自带的nodejs容器
+      inheritFrom 'nodejs base'
+      containerTemplate {
+        // 容器名称，提供给下面的stage使用
+        name 'nodejs'
+        // 使用国内可以访问的镜像指定nodejs版本
+        image 'docker.1ms.run/node:18-alpine'
+      }
+    }
+  }
+
+  // 环境变量
+  environment {
+    REGISTRY = 'harbor.bluemoon.com.cn'
+    DOCKERHUB_NAMESPACE = 'frontend-web'
+    //镜像库项目空间
+    CICD_SEQUENCE = get_cicd_sequence()
+    APP_NAME = 'k8s-tools'
+    // 使用环境变量组装镜像名称，BUILD_NUMBER为流水线编号
+    DOCKER_IMAGE = "${REGISTRY}/${DOCKERHUB_NAMESPACE}/${APP_NAME}:${CICD_SEQUENCE}"
+    // 项目名称
+    DEPLOYMENT_NAMESPACE = 'k8s-tools'
+    // 工作负载名称
+    DEPLOYMENT_NAME = 'k8s-tools-service-v1'
+    // 容器名称
+    CONTAINER_NAME = 'k8s-tools-container'
+  }
+
+  stages {
+    stage('拉取代码') {
+      steps {
+          checkout(scm)
+      }
+    }
+
+    stage('安装依赖') {
+      steps {
+        // 使用agent中定义的的nodejs容器
+        container('nodejs') {
+          // 使用国内npm源，加速安装
+          sh 'npm config set registry https://registry.npmmirror.com'
+          sh 'npm install'
+        }
+      }
+    }
+
+    stage('构建文件') {
+      steps {
+        // 使用agent中定义的的nodejs容器
+        container('nodejs') {
+          sh 'npm run build'
+        }
+      }
+    }
+
+    stage('构建镜像并推送到仓库') {
+      agent none
+      steps {
+        container('base') {
+          sh 'docker build -f ./deploy/Dockerfile -t $DOCKER_IMAGE .'
+          // 使用私有的镜像仓库凭证，名称：harbor
+          withCredentials([usernamePassword(credentialsId: 'harbor', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+            // 登录镜像仓库
+            sh 'echo "$DOCKER_PASSWORD"|docker login $REGISTRY -u "$DOCKER_USERNAME" --password-stdin'
+            // 推送镜像
+            sh 'docker push $DOCKER_IMAGE'
+          }
+        }
+      }
+    }
+
+    stage('部署到k8s集群') {
+        steps {
+            script {
+                // 使用配置好的Kubernetes凭证，名称：kubeconfig
+                withCredentials([kubeconfigFile(credentialsId: 'uat-kubeconfig', variable: 'KUBECONFIG')]) {
+                  // 使用kubesphere自带的base镜像，可以执行kubectl命令
+                  container('base') {
+                    // 使用kubectl命令，更新工作负载镜像名称，注意这里每次构建的镜像名称都不一样
+                    sh """
+                      kubectl set image deployment/${DEPLOYMENT_NAME} ${CONTAINER_NAME}=${DOCKER_IMAGE} -n ${DEPLOYMENT_NAMESPACE}
+                    """
+                    // 获取部署结果
+                    sh """
+                      kubectl rollout status deployment/${DEPLOYMENT_NAME} -n ${DEPLOYMENT_NAMESPACE}
+                    """
+                  }
+                }
+            }
+        }
+    }
+  }
+}

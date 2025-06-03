@@ -1,0 +1,33 @@
+{
+  "name": "k8s-tools",
+  "displayName": "k8s-tools",
+  "description": "蓝月亮前端项目快速配置 k8s 的插件",
+  "license": "MIT",
+  "scripts": {
+    "dev": "pnpm run dev:extension & pnpm run dev:webview-page",
+    "dev:extension": "pnpm run -F k8s-tools dev",
+    "dev:webview-page": "pnpm run -F webview-page dev",
+    "dev:devtools": "pnpm run -F webview-page devtools",
+    "build": "pnpm run build:extension & pnpm run build:webview-page",
+    "build:extension": "pnpm run -F k8s-tools build",
+    "build:webview-page": "pnpm run -F webview-page build",
+    "package:extension": "pnpm run build && pnpm run -F k8s-tools package",
+    "publish:extension": "pnpm run build && pnpm run -F k8s-tools publish"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "dayjs": "^1.11.10",
+    "nanoid": "^5.0.7",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "use-immer": "^0.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "18.x",
+    "@types/vscode": "1.88.0",
+    "eslint": "^8.57.0",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.3.3",
+    "vite": "^5.2.0"
+  }
+}

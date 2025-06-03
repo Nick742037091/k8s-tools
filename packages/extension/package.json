@@ -1,0 +1,61 @@
+{
+  "name": "k8s-tools",
+  "publisher": "nick742037091",
+  "displayName": "K8S Tools",
+  "description": "蓝月亮前端项目快速配置 k8s 的插件",
+  "version": "1.0.1",
+  "repository": "https://github.com/Nick742037091/k8s-tools",
+  "icon": "assets/icons/logo.png",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.88.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/index.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "k8s-tools.openInTitle",
+        "title": "配置k8s",
+        "icon": "./assets/icons/logo.png"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "k8s-tools.openInTitle",
+          "group": "navigation",
+          "title": "配置k8s"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "k8s-tools.openInTitle",
+          "group": "navigation",
+          "title": "配置k8s"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "build": "webpack --config ./config/production.config.js",
+    "dev": "webpack --watch --config ./config/development.config.js",
+    "package": "vsce package",
+    "publish": "vsce publish",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.4.0",
+    "@typescript-eslint/parser": "^7.4.0",
+    "copy-webpack-plugin": "^13.0.0",
+    "ts-loader": "^9.5.1",
+    "vsce": "^2.15.0",
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-merge": "^6.0.1",
+    "handlebars": "^4.7.8"
+  }
+}
